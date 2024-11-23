@@ -10,8 +10,11 @@ AAuraCharacterBase::AAuraCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	WeaponHandSocket = FName("WeaponHandSocket");
+	WeaponTipSocketName = FName("TipSocket");
+
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
-	Weapon->SetupAttachment(GetMesh(),FName("WeaponHandSocket"));
+	Weapon->SetupAttachment(GetMesh(), WeaponHandSocket);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
@@ -23,6 +26,12 @@ UAbilitySystemComponent* AAuraCharacterBase::GetAbilitySystemComponent() const
 void AAuraCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+FVector AAuraCharacterBase::GetCombatSocketLocation()
+{
+	check(Weapon);
+	return Weapon->GetSocketLocation(WeaponTipSocketName);
 }
 
 void AAuraCharacterBase::InitAbilityActorInfo()
