@@ -66,4 +66,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USplineComponent> Spline;
+
+	void AutoRun();
 };
