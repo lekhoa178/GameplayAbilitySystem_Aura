@@ -73,37 +73,43 @@ void AAuraPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
 
 void AAuraPlayerController::AbilityInputTagReleased(const FGameplayTag InputTag)
 {
-	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting)
-	{
-		if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
-		return;
-	}
+	if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
 
-	if (FollowTime < ShortPressThreshold)
-	{
-		if (const APawn* ControlledPawn = GetPawn())
-	 	{
-	 		if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
-	 		{
-	 			Spline->ClearSplinePoints();
-	 			for (const FVector& PointLoc : NavPath->PathPoints)
-	 			{
-	 				Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
-	 			}
-	 			
-	 			CachedDestination = NavPath->PathPoints.Last();
-	 			bAutoRunning = true;
-	 		}
-	 	}
-	}
+	// if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
+	// {
+	// 	if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
+	// 	return;
+	// }
 
-	FollowTime = 0.f;
-	bTargeting = false;
+	if (!bTargeting && !bShiftKeyDown)
+	{
+		if (FollowTime < ShortPressThreshold)
+		{
+			if (const APawn* ControlledPawn = GetPawn())
+			{
+				if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
+				{
+					Spline->ClearSplinePoints();
+					for (const FVector& PointLoc : NavPath->PathPoints)
+					{
+						Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+					}
+	 				
+					CachedDestination = NavPath->PathPoints.Last();
+					bAutoRunning = true;
+				}
+			}
+		}
+		
+		FollowTime = 0.f;
+		bTargeting = false;
+	}
+	
 }
 
 void AAuraPlayerController::AbilityInputTagHeld(const FGameplayTag InputTag)
 {
-	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting)
+	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting || bShiftKeyDown)
 	{
 		if (GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
 		return;
@@ -159,6 +165,8 @@ void AAuraPlayerController::SetupInputComponent()
 
 	UAuraInputComponent* AuraInputComponent = CastChecked<UAuraInputComponent>(InputComponent);
 	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this, &AAuraPlayerController::ShiftPressed);
+	AuraInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this, &AAuraPlayerController::ShiftReleased);
 	AuraInputComponent->BindAbilityActions(InputConfig, this,
 		&AAuraPlayerController::AbilityInputTagPressed,
 		&AAuraPlayerController::AbilityInputTagReleased,
