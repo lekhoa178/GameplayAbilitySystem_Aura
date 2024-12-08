@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffectExecutionCalculation.h"
+#include "AbilitySystem/AuraAttributeSet.h"
 #include "ExecCalc_Damage.generated.h"
 
 /**
