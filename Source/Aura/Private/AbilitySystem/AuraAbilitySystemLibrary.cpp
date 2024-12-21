@@ -125,6 +125,6 @@ void UAuraAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& E
 {
 	if (FAuraGameplayEffectContext* AuraGameplayEffect = static_cast<FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		AuraGameplayEffect->SetBlockedHit(bInIsCriticalHit);
+		AuraGameplayEffect->SetCriticalHit(bInIsCriticalHit);
 	}
 }
